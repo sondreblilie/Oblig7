@@ -4,7 +4,7 @@ import csv
 DATO_FORMATER = ["%d.%m.%Y", "%d %m %Y", "%d-%m-%Y", "%d%m%Y"]
 
 def skriv_inn_dato_v2():
-    
+# Innså i ettertid at oppgaven ikke ville ha en dato, men et årstall, så denne er ubrukelig
     while True:
         dato_input = input("Skriv inn en dato (DD.MM.YYYY): ").strip()
         for frmt in DATO_FORMATER:
@@ -24,5 +24,12 @@ def skriv_inn_dato_v2():
                 "\nDDMMYYYY"
                 "\n")
 
-dato = skriv_inn_dato_v2()
-print(type(dato))
+def skriv_inn_årstall():
+    while True:
+        dato_input = input("Skriv inn et årstall (YYYY):").strip()
+        try:
+            dato = datetime.strptime(dato_input, "%Y")
+            return dato.strftime("%Y")
+        except ValueError:
+            print("Årstallet må ha fire siffer.")
+            continue
