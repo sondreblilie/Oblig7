@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import sys
 import matplotlib.pyplot as plt
+import math as m
 
 FILSTI = "Obligatoriske Innleveringer/Oblig7/sinnes_2014_2025_med_makstemperatur.csv"
 
@@ -100,30 +101,66 @@ else:
 
 #Finner snødager i skisesongen mellom november forrige år og mai det året.
 
-start_dato = datetime.strptime(f"01.11.{år-1}", "%d.%m.%Y")
-slutt_dato = datetime.strptime(f"01.05.{år}", "%d.%m.%Y")
+start_dato_snø = datetime.strptime(f"01.11.{år-1}", "%d.%m.%Y")
+slutt_dato_snø = datetime.strptime(f"01.05.{år}", "%d.%m.%Y")
 antall_snødager = 0
 
 for dato, verdier in sortert_dict.items():
     dato_obj = datetime.strptime(dato, "%d.%m.%Y")
-    if dato_obj < slutt_dato and dato_obj >= start_dato and tall(verdier[6]) >= 20:
+    if dato_obj < slutt_dato_snø and dato_obj >= start_dato_snø and tall(verdier[6]) >= 20:
         antall_snødager += 1
 
 print(f"\n- Det var {antall_snødager} dager med minst 20 cm snødybde i skisesongen {år-1}/{år}.")
 
 #Plantevekst
 
+# start_dato_plante = datetime.strptime(f"01.04.{år}", "%d.%m.%Y")
+# slutt_dato_plante = datetime.strptime(f"31.12.{år}", "%d.%m.%Y")
+# plantevekst = 0
+
+# for dato, verdier in sortert_dict.items():
+#     dato_obj = datetime.strptime(dato, "%d.%m.%Y")
+    
+#     if tall(verdier[3]) >= 5 and dato_obj >= start_dato_plante and dato_obj <= slutt_dato_plante:
+#         plantevekst += tall(verdier[3]) - 5
+#     if tall(verdier[3]) < 0 and dato_obj >= start_dato_plante and dato_obj <= slutt_dato_plante:
+#         plantevekst += tall(verdier[3])
+
+#print(f"\n- Total plantevekst var {round(plantevekst)} for året {år}. (April til Desember)")
+
+
+
+
 start_dato_plante = datetime.strptime(f"01.01.{år}", "%d.%m.%Y")
 slutt_dato_plante = datetime.strptime(f"31.12.{år}", "%d.%m.%Y")
 plantevekst = 0
 
-for dato, verdier in sortert_dict.items():
-    dato_obj = datetime.strptime(dato, "%d.%m.%Y")
-    
-    if dato_obj >= start_dato_plante and dato_obj <= slutt_dato_plante and tall(verdier[3]) >= 5:
-        plantevekst += tall(verdier[3]) - 5
+plantevekst_rekord_startdato = 0
+plantevekst_rekord = float("-inf")
 
-print(f"\n- Total plantevekst var {round(plantevekst)} for året {år}.")
+while start_dato_plante <= slutt_dato_plante:
+    for dato, verdier in sortert_dict.items():
+        if dato[-4:] != input_årstall: continue
+        dato_obj = datetime.strptime(dato, "%d.%m.%Y")
+        if tall(verdier[3]) >= 5 and dato_obj >= start_dato_plante and dato_obj <= slutt_dato_plante:
+            plantevekst += tall(verdier[3]) - 5
+        if tall(verdier[3]) < 0 and dato_obj >= start_dato_plante and dato_obj <= slutt_dato_plante:
+            plantevekst += tall(verdier[3])
+
+    if plantevekst > plantevekst_rekord:
+        plantevekst_rekord = plantevekst
+        plantevekst_rekord_startdato = start_dato_plante
+    plantevekst = 0
+    
+    start_dato_plante += timedelta(days=1)
+
+print(f"Startdatoen med best plantevekst for året {år} var {plantevekst_rekord_startdato.strftime("%d.%m.%Y")} med plantevekst på {round(plantevekst_rekord)}")
+    
+    
+    
+    
+
+
 
 #Lengste periode uten nedbør
 
@@ -183,7 +220,7 @@ plt.suptitle(f"Værdata Sirdal - Sinnes {input_årstall}")
 tegn_graf(1, x_datoer, "Dato", snødybde_liste, "(cm)", "Snødybde")
 tegn_graf(2, x_datoer, "Dato", nedbør_liste, "(mm)", "Nedbør")
 tegn_graf(3, x_datoer, "Dato", mid_temp_liste, "(°C)", "Middeltemperatur")
-tegn_graf(4, x_datoer, "Dato", max_temp_liste, "(°C)", "Makstemperatur")
+tegn_graf(4, x_datoer, "Dato", høyeste_mid_vind_liste, "(m/s)", "Høyeste middelvind")
 
 plt.tight_layout()
 plt.show()
